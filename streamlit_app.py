@@ -7,8 +7,48 @@ import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Title with a softer tone
-st.markdown("<h1 style='text-align: center; color: #FF69B4;'>Classify Your Favorite Images!</h1>", unsafe_allow_html=True)
+# Custom HTML Styling for the App
+st.markdown("""
+    <style>
+        .main {
+            background-color: #f0f0f5;
+        }
+        .stButton>button {
+            background-color: #FF69B4;
+            color: white;
+        }
+        .stProgress .st-bj {
+            background-color: #FF69B4;
+        }
+        h1 {
+            color: #FF69B4;
+            text-align: center;
+        }
+        .about-text {
+            font-size: 16px;
+            color: #4B0082;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# Title and introduction
+st.markdown("<h1>Classify Your Favorite Images with Style!</h1>", unsafe_allow_html=True)
+
+# Sidebar with About section
+st.sidebar.title("About the App")
+st.sidebar.write("""
+    **Classify Your Favorite Images** is a simple, easy-to-use web app that allows you to upload an image and classify it using a pre-trained **ResNet-18** model.
+    
+    This app uses machine learning to predict the class of your image from the **ImageNet** dataset, which consists of 1,000 different categories.
+    
+    **Key Features**:
+    - Upload your image (JPG format)
+    - Adjust the confidence threshold to filter predictions
+    - Visualize the top predictions using an intuitive bar chart
+    - See the top 5 most likely predictions along with their confidence scores
+
+    Just upload an image and hit "Classify Image" to get started!
+""")
 
 # Sidebar for file upload and user interactions
 st.sidebar.header("Upload Your Image")
@@ -80,7 +120,7 @@ if uploaded_file is not None:
     progress_bar.progress(100)
 
     # Prediction summary and results
-    st.write(f"### Summary of Predictions with Confidence Above {confidence_threshold:.2f}:")
+    st.write(f"### Predictions with Confidence Above {confidence_threshold:.2f}:")
     for label, value in zip(filtered_labels, filtered_values):
         st.write(f"- **{label}**: {value:.4f} confidence")
 
@@ -101,5 +141,6 @@ if uploaded_file is not None:
 else:
     st.write("Please upload an image to get predictions.")
 
-# Footer with love note (optional touch)
-st.sidebar.markdown("Created by: W.M.Chamodya Prabodhani (ITBIN-2110-0087)")
+# Footer with a note
+st.sidebar.markdown("<hr>", unsafe_allow_html=True)
+st.sidebar.markdown("Created: W.M.CHAMODYA PRABODHANI (ITBIN-2110-0087)")

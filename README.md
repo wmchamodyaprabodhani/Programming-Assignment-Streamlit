@@ -1,19 +1,36 @@
-# 🎈 Blank app template
+# Image Classification using ResNet-18
 
-A simple Streamlit app template for you to modify!
+CREATED BY: W.M.CHAMODYA PRABODHANI (ITBIN-2110-0087)
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+This is a **Streamlit web application** that classifies images using the pre-trained **ResNet-18** model. Upload an image, adjust the confidence threshold, and the app will predict the class of the image using the ImageNet dataset.
 
-### How to run it on your own machine
+## Features
 
-1. Install the requirements
+- **Image Upload**: Upload an image (JPG format) to be classified by the model.
+- **Pre-trained Model**: Uses **ResNet-18**, a smaller convolutional neural network pre-trained on the ImageNet dataset.
+- **Top Predictions**: Displays the top 5 predicted classes along with confidence scores.
+- **Confidence Threshold**: Use a slider to filter predictions based on confidence levels.
+- **Visualizations**: A bar chart visualizing the top predictions using Seaborn.
+- **Personalized**: Soft visual theme and a footer with a heart emoji!
 
-   ```
-   $ pip install -r requirements.txt
-   ```
+## Demo
 
-2. Run the app
+You can try out the app [here](https://your-streamlit-app-link).
 
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+## How to Run Locally
+
+### Requirements
+
+Ensure you have the following installed:
+- Python 3.x
+- Streamlit
+- PyTorch
+- Pillow
+- Seaborn
+- Requests
+- Matplotlib
+
+Install the required packages by running:
+
+```bash
+pip install -r requirements.txt

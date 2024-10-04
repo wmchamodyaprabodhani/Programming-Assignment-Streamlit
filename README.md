@@ -36,3 +36,9 @@ You can test the app with images of:
     Animals: Dogs, Cats, Birds
     Objects: Furniture, Vehicles
     Scenes: Landscapes, Cities
+
+Sample Screenshot
+https://drive.google.com/drive/folders/14QNYsCsFVglm3Tv-MQLzom9vRCh48yQa?usp=sharing
+
+You Can Run a Demo on:
+https://blank-app-26q94f34z39.streamlit.app/#classify-your-favorite-images-with-style

@@ -3,30 +3,37 @@ from PIL import Image
 import torch
 from torchvision import models, transforms
 import requests
-import seaborn as sns
-import pandas as pd
 import matplotlib.pyplot as plt
 
 # Custom HTML Styling for the App
 st.markdown("""
     <style>
         .main {
-            background-color: #f0f0f5;
+            background-color: #f7e8f8;
         }
         .stButton>button {
-            background-color: #FF69B4;
+            background-color: #FF8DAA;
             color: white;
+            font-weight: bold;
         }
         .stProgress .st-bj {
-            background-color: #FF69B4;
+            background-color: #FF8DAA;
         }
         h1 {
-            color: #FF69B4;
+            color: #FF8DAA;
             text-align: center;
+        }
+        h2 {
+            color: #C57B9E;
         }
         .about-text {
             font-size: 16px;
             color: #4B0082;
+        }
+        .prediction {
+            font-size: 18px;
+            font-weight: bold;
+            color: #C57B9E;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -37,7 +44,7 @@ st.markdown("<h1>Classify Your Favorite Images with Style!</h1>", unsafe_allow_h
 # Sidebar with About section
 st.sidebar.title("About the App")
 st.sidebar.write("""
-    **Classify Your Favorite Images** is a simple, easy-to-use web app that allows you to upload an image and classify it using a pre-trained **ResNet-18** model.
+    **Classify Your Favorite Images** is a web app that allows you to upload an image and classify it using a pre-trained **ResNet-18** model.
     
     This app uses machine learning to predict the class of your image from the **ImageNet** dataset, which consists of 1,000 different categories.
     
@@ -119,21 +126,23 @@ if uploaded_file is not None:
     status_text.text("Finalizing results...")
     progress_bar.progress(100)
 
-    # Prediction summary and results
-    st.write(f"### Predictions with Confidence Above {confidence_threshold:.2f}:")
-    for label, value in zip(filtered_labels, filtered_values):
-        st.write(f"- **{label}**: {value:.4f} confidence")
-
-    # Visualizing results using Seaborn
-    st.write("### Top Predictions Visualization")
+    # Display the predicted category prominently
     if filtered_labels:
-        df = pd.DataFrame({
-            'Labels': filtered_labels,
-            'Confidence': filtered_values
-        })
+        predicted_label = filtered_labels[0]  # The most confident prediction
+        st.markdown(f"<h2 class='prediction'>Predicted Category: {get_class_label(predicted_label)}</h2>", unsafe_allow_html=True)
 
+        # Prediction summary and results
+        st.write(f"### Predictions with Confidence Above {confidence_threshold:.2f}:")
+        for label, value in zip(filtered_labels, filtered_values):
+            st.write(f"- **{get_class_label(label)}**: {value:.4f} confidence")
+
+        # Visualizing results using Matplotlib
+        st.write("### Top Predictions Visualization")
         plt.figure(figsize=(8, 4))
-        sns.barplot(x="Confidence", y="Labels", data=df, palette="coolwarm")
+        plt.barh(filtered_labels, filtered_values, color='#FF8DAA')
+        plt.xlabel('Confidence')
+        plt.ylabel('Labels')
+        plt.title('Top Predictions')
         st.pyplot(plt)
     else:
         st.write("No predictions above the confidence threshold.")

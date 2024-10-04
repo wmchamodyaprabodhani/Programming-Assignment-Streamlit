@@ -107,7 +107,10 @@ if uploaded_file is not None:
 
     # Helper function to get the class label
     def get_class_label(index):
-        return labels[str(index)][1]
+        try:
+            return labels[str(index)][1]
+        except KeyError:
+            return "Unknown"
 
     # Top predictions and applying confidence threshold
     top_k = torch.topk(outputs, 5).indices.squeeze(0).tolist()
@@ -129,7 +132,8 @@ if uploaded_file is not None:
     # Display the predicted category prominently
     if filtered_labels:
         predicted_label = filtered_labels[0]  # The most confident prediction
-        st.markdown(f"<h2 class='prediction'>Predicted Category: {get_class_label(predicted_label)}</h2>", unsafe_allow_html=True)
+        predicted_category = get_class_label(predicted_label)
+        st.markdown(f"<h2 class='prediction'>Predicted Category: {predicted_category}</h2>", unsafe_allow_html=True)
 
         # Prediction summary and results
         st.write(f"### Predictions with Confidence Above {confidence_threshold:.2f}:")
@@ -152,4 +156,4 @@ else:
 
 # Footer with a note
 st.sidebar.markdown("<hr>", unsafe_allow_html=True)
-st.sidebar.markdown("Created: W.M.CHAMODYA PRABODHANI (ITBIN-2110-0087)")
+st.sidebar.markdown("Created By: W.M.CHAMODYA PRABODHANI (ITBIN-2110-0087)")

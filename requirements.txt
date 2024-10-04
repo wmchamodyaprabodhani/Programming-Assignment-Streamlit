@@ -1,6 +1,7 @@
 streamlit
 torch
 torchvision
-matplotlib
 pillow
+seaborn
+matplotlib
 requests

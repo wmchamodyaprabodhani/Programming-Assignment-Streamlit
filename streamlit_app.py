@@ -3,157 +3,121 @@ from PIL import Image
 import torch
 from torchvision import models, transforms
 import requests
+import json
 import matplotlib.pyplot as plt
 
-# Custom HTML Styling for the App
-st.markdown("""
+# Custom CSS to improve UI design
+st.markdown(
+    """
     <style>
-        .main {
-            background-color: #f7e8f8;
-        }
-        .stButton>button {
-            background-color: #FF8DAA;
-            color: white;
-            font-weight: bold;
-        }
-        .stProgress .st-bj {
-            background-color: #FF8DAA;
-        }
-        h1 {
-            color: #FF8DAA;
-            text-align: center;
-        }
-        h2 {
-            color: #C57B9E;
-        }
-        .about-text {
-            font-size: 16px;
-            color: #4B0082;
-        }
-        .prediction {
-            font-size: 18px;
-            font-weight: bold;
-            color: #C57B9E;
-        }
+    .main {
+        background-color: #f0f2f6;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .reportview-container {
+        border-radius: 10px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+    h1 {
+        font-weight: 600;
+        color: #333;
+    }
+    .stButton button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .sidebar .sidebar-content {
+        background-color: #E8F0FE;
+    }
     </style>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
-# Title and introduction
-st.markdown("<h1>Classify Your Favorite Images with Style!</h1>", unsafe_allow_html=True)
+# Title and description
+st.title("Image Classification with EfficientNet")
+st.write("Created By: W.M.CHAMODYA PRABODHANI (ITBIN-2110-0087)")
+st.write("Upload an image and classify it using the EfficientNet model (pre-trained on ImageNet).")
 
-# Sidebar with About section
-st.sidebar.title("About the App")
-st.sidebar.write("""
-    **Classify Your Favorite Images** is a web app that allows you to upload an image and classify it using a pre-trained **ResNet-18** model.
-    
-    This app uses machine learning to predict the class of your image from the **ImageNet** dataset, which consists of 1,000 different categories.
-    
-    **Key Features**:
-    - Upload your image (JPG format)
-    - Adjust the confidence threshold to filter predictions
-    - Visualize the top predictions using an intuitive bar chart
-    - See the top 5 most likely predictions along with their confidence scores
+# Sidebar - App Information
+with st.sidebar:
+    st.header("App Information")
+    st.write("This app classifies images using a pre-trained EfficientNet model.")
+    st.write("Simply upload an image, and the model will predict its category, displaying the top 5 results with a confidence bar.")
+    st.write("Developed using PyTorch and Streamlit.")
+    st.write("Ensure clear images for best results.")
+    st.markdown("#### Categories to Test:")
+    st.markdown("- **Animals**: Cats, Dogs, Birds\n- **Objects**: Cars, Furniture\n- **Scenes**: Landscapes, Cities")
+    confidence_threshold = st.slider("Confidence Threshold", 0.0, 1.0, 0.5, 0.1)
 
-    Just upload an image and hit "Classify Image" to get started!
-""")
+# File uploader widget
+uploaded_file = st.file_uploader("Upload your image...", type=["jpg", "png", "jpeg"])
 
-# Sidebar for file upload and user interactions
-st.sidebar.header("Upload Your Image")
-uploaded_file = st.sidebar.file_uploader("Choose an image file (JPG format)", type="jpg")
+# Button to classify image
+if uploaded_file:
+    classify_button = st.button("Classify Image")
 
-# Sidebar confidence threshold slider
-confidence_threshold = st.sidebar.slider("Confidence Threshold for Predictions", 0.0, 1.0, 0.5, 0.1)
+    if classify_button:
+        # Show progress
+        st.markdown("#### Processing Image...")
 
-# Progress bar and status updates
-progress_bar = st.progress(0)
-status_text = st.empty()
+        # Load and preprocess the image
+        img = Image.open(uploaded_file)
+        st.image(img, caption="Uploaded Image", use_column_width=True)
 
-if uploaded_file is not None:
-    # Show progress
-    status_text.text("Loading and Processing Image...")
-    progress_bar.progress(20)
+        preprocess = transforms.Compose([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        img_tensor = preprocess(img).unsqueeze(0)
 
-    # Display the uploaded image on the main page
-    img = Image.open(uploaded_file)
-    st.image(img, caption='Uploaded Image', use_column_width=True)
+        # Load pre-trained EfficientNet model
+        model = models.efficientnet_b0(pretrained=True)
+        model.eval()
 
-    # Image transformation for ResNet-18
-    preprocess = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+        # Perform image classification
+        with torch.no_grad():
+            outputs = model(img_tensor)
 
-    # Process the image
-    img_tensor = preprocess(img).unsqueeze(0)
+        # Get the predicted class
+        _, predicted = outputs.max(1)
+        class_index = predicted.item()
 
-    # Load ResNet-18 model
-    model = models.resnet18(pretrained=True)
-    model.eval()
+        # Load ImageNet labels
+        LABELS_URL = "https://storage.googleapis.com/download.tensorflow.org/data/imagenet_class_index.json"
+        response = requests.get(LABELS_URL)
+        labels = response.json()
 
-    # Show progress
-    status_text.text("Classifying Image...")
-    progress_bar.progress(60)
-
-    # Perform classification
-    with torch.no_grad():
-        outputs = model(img_tensor)
-
-    # Fetch ImageNet labels
-    LABELS_URL = "https://storage.googleapis.com/download.tensorflow.org/data/imagenet_class_index.json"
-    response = requests.get(LABELS_URL)
-    labels = response.json()
-
-    # Helper function to get the class label
-    def get_class_label(index):
-        try:
+        # Function to get the label from index
+        def get_class_label(index):
             return labels[str(index)][1]
-        except KeyError:
-            return "Unknown"
 
-    # Top predictions and applying confidence threshold
-    top_k = torch.topk(outputs, 5).indices.squeeze(0).tolist()
-    top_labels = [get_class_label(i) for i in top_k]
-    top_values = [outputs[0, i].item() for i in top_k]
+        # Show prediction
+        class_label = get_class_label(class_index)
+        st.markdown(f"### Prediction: **{class_label}**")
 
-    # Filter predictions based on confidence threshold
-    filtered_labels = []
-    filtered_values = []
-    for label, value in zip(top_labels, top_values):
-        if value >= confidence_threshold:
-            filtered_labels.append(label)
-            filtered_values.append(value)
+        # Top 5 predictions
+        st.markdown("#### Top 5 Predictions")
+        top_k = torch.topk(outputs, 5).indices.squeeze(0).tolist()
+        top_labels = [get_class_label(i) for i in top_k]
+        top_values = [outputs[0, i].item() for i in top_k]
 
-    # Show progress
-    status_text.text("Finalizing results...")
-    progress_bar.progress(100)
+        # Display bar chart of confidence levels
+        fig, ax = plt.subplots()
+        ax.barh(top_labels, top_values, color="teal")
+        ax.invert_yaxis()
+        st.pyplot(fig)
 
-    # Display the predicted category prominently
-    if filtered_labels:
-        predicted_label = filtered_labels[0]  # The most confident prediction
-        predicted_category = get_class_label(predicted_label)
-        st.markdown(f"<h2 class='prediction'>Predicted Category: {predicted_category}</h2>", unsafe_allow_html=True)
-
-        # Prediction summary and results
-        st.write(f"### Predictions with Confidence Above {confidence_threshold:.2f}:")
-        for label, value in zip(filtered_labels, filtered_values):
-            st.write(f"- **{get_class_label(label)}**: {value:.4f} confidence")
-
-        # Visualizing results using Matplotlib
-        st.write("### Top Predictions Visualization")
-        plt.figure(figsize=(8, 4))
-        plt.barh(filtered_labels, filtered_values, color='#FF8DAA')
-        plt.xlabel('Confidence')
-        plt.ylabel('Labels')
-        plt.title('Top Predictions')
-        st.pyplot(plt)
-    else:
-        st.write("No predictions above the confidence threshold.")
+        # Sidebar Info - Top classes
+        st.sidebar.subheader("Top 5 Predictions")
+        for i in range(5):
+            st.sidebar.write(f"{i + 1}: {get_class_label(top_k[i])} ({top_values[i]:.4f})")
 
 else:
-    st.write("Please upload an image to get predictions.")
-
-# Footer with a note
-st.sidebar.markdown("<hr>", unsafe_allow_html=True)
-st.sidebar.markdown("Created By: W.M.CHAMODYA PRABODHANI (ITBIN-2110-0087)")
+    st.write("Please upload an image to classify.")

@@ -1,36 +1,38 @@
-# Image Classification using ResNet-18
+# Image Classification App Using EfficientNet
 
-CREATED BY: W.M.CHAMODYA PRABODHANI (ITBIN-2110-0087)
-
-This is a **Streamlit web application** that classifies images using the pre-trained **ResNet-18** model. Upload an image, adjust the confidence threshold, and the app will predict the class of the image using the ImageNet dataset.
+This is an image classification web application that allows users to upload an image and get predictions using a pre-trained EfficientNet model. The app displays the top 5 predicted classes with confidence scores using the ImageNet dataset.
 
 ## Features
+- Upload an image for classification.
+- Classifies images into one of the 1,000 ImageNet classes.
+- Displays the top 5 predictions with confidence levels.
+- Interactive and clean UI using Streamlit.
 
-- **Image Upload**: Upload an image (JPG format) to be classified by the model.
-- **Pre-trained Model**: Uses **ResNet-18**, a smaller convolutional neural network pre-trained on the ImageNet dataset.
-- **Top Predictions**: Displays the top 5 predicted classes along with confidence scores.
-- **Confidence Threshold**: Use a slider to filter predictions based on confidence levels.
-- **Visualizations**: A bar chart visualizing the top predictions using Seaborn.
-- **Personalized**: Soft visual theme and a footer with a heart emoji!
+## How to Run
 
-## Demo
+1. Install dependencies from the `requirements.txt` file.
+   ```bash
+   pip install -r requirements.txt
 
-You can try out the app [here](https://your-streamlit-app-link).
+2. Run the Streamlit app.
 
-## How to Run Locally
+   ```bash
+   streamlit run app.py
 
-### Requirements
+Upload an image using the web interface and press "Classify Image" to see predictions.
 
-Ensure you have the following installed:
-- Python 3.x
-- Streamlit
-- PyTorch
-- Pillow
-- Seaborn
-- Requests
-- Matplotlib
+File Structure
+    app.py: Main Streamlit application file.
+    requirements.txt: Python packages needed to run the app.
+    README.md: Documentation for the app.
 
-Install the required packages by running:
+Model Used
+EfficientNet (pre-trained on ImageNet) is a highly efficient convolutional neural network architecture that balances model accuracy and performance.
 
-```bash
-pip install -r requirements.txt
+Sample Categories for Testing
+
+You can test the app with images of:
+
+    Animals: Dogs, Cats, Birds
+    Objects: Furniture, Vehicles
+    Scenes: Landscapes, Cities
